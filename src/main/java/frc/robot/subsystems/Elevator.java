@@ -33,12 +33,16 @@ public class Elevator implements AutoCloseable {
   // This gearbox represents a gearbox containing 4 Vex 775pro motors.
   private final DCMotor m_elevatorGearbox = DCMotor.getVex775Pro(4);
 
+  public static double kElevatorKp = 5;
+  public static double kElevatorKi = 0;
+  public static double kElevatorKd = 0;
+
   // Standard classes for controlling our elevator
   private final ProfiledPIDController m_controller =
       new ProfiledPIDController(
-          Constants.kElevatorKp,
-          Constants.kElevatorKi,
-          Constants.kElevatorKd,
+        kElevatorKp,
+        kElevatorKi,
+        kElevatorKd,
           new TrapezoidProfile.Constraints(2.45, 2.45));
   ElevatorFeedforward m_feedforward =
       new ElevatorFeedforward(
@@ -47,7 +51,7 @@ public class Elevator implements AutoCloseable {
           Constants.kElevatorkV,
           Constants.kElevatorkA);
   private final RelativeEncoder m_encoder;
-//  private final PWMSparkMax m_motor = new PWMSparkMax(Constants.kMotorPort);
+//    private final PWMSparkMax m_motor = new PWMSparkMax(Constants.kMotorPort);
   private CANSparkMax m_motor = new CANSparkMax(57, MotorType.kBrushless);
 
   // Simulation classes help us simulate what's going on, including gravity.
@@ -71,6 +75,10 @@ public class Elevator implements AutoCloseable {
 
   /** Subsystem constructor. */
   public Elevator() {
+    SmartDashboard.putNumber("kElevatorKp", kElevatorKp);
+    SmartDashboard.putNumber("kElevatorKi", kElevatorKi);
+    SmartDashboard.putNumber("kElevatorKd", kElevatorKd);
+
 
     if (RobotBase.isSimulation()) {
       REVPhysicsSim.getInstance().addSparkMax(m_motor, DCMotor.getNEO(1));
@@ -90,6 +98,11 @@ public class Elevator implements AutoCloseable {
   /** Advance the simulation. */
   public void simulationPeriodic() {
 
+    kElevatorKp = SmartDashboard.getNumber("kElevatorKp", kElevatorKp);
+    kElevatorKi = SmartDashboard.getNumber("kElevatorKi", kElevatorKi);
+    kElevatorKd = SmartDashboard.getNumber("kElevatorKd", kElevatorKd);
+
+  
     REVPhysicsSim.getInstance().run();
     // In this method, we update our simulation of what our elevator is doing
     // First, we set our "inputs" (voltages)
